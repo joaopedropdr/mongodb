@@ -115,6 +115,26 @@ db.veiculos.aggregate([
 
 ])
 
+
+
+// Script para adicionar o id do proprietario na coleção de veiculos
+const proprietarios = db.proprietarios.find({}, { _id: 1 }).toArray();
+const idsProprietarios = proprietarios.map(p => p._id);
+
+// 2. Itera sobre os veículos e atualiza cada um
+db.veiculos.find().forEach(veiculo => {
+    // Escolhe um índice aleatório do array de proprietários
+    const randomIndex = Math.floor(Math.random() * idsProprietarios.length);
+    const randomPropId = idsProprietarios[randomIndex];
+
+    // Atualiza o documento adicionando o campo proprietario_id
+    db.veiculos.updateOne(
+        { _id: veiculo._id },
+        { $set: { proprietario_id: randomPropId } }
+    );
+});
+
+// Adicionando o proprietario e marca na coleção veiculos
 db.veiculos.aggregate([
     { $limit: 100 }, 
     {
@@ -125,13 +145,13 @@ db.veiculos.aggregate([
             as: "info_marca"
         }
     },
-
+    { $limit: 5 }, 
     {
         $lookup: {
             from: "proprietarios",
-            localField: "",       // Campo na coleção veiculos
-            foreignField: "nome_marca", // Campo na coleção marcas
-            as: "info_marca"
+            localField: "proprietario_id",     // Campo na coleção veiculos
+            foreignField: "_id", // Campo na coleção marcas
+            as: "info_prop"
         }
     },
     
@@ -141,17 +161,75 @@ db.veiculos.aggregate([
             preserveNullAndEmptyArrays: true // Mantém o veículo se não achar a marca
         }
     },
+    
+    {
+        $unwind: {
+            path: "$info_prop",
+            preserveNullAndEmptyArrays: true // Mantém o veículo se não achar a marca
+        }
+    },
     {
         $project: {
             _id: 1,
             modelo: 1,
             ano: 1,
             placa: 1,
-            marca_veiculo: {
-                nome_marca: "$info_marca.nome_marca",
-                marca_id: "$info_marca._id"
+            marca: {
+                marca_id: "$info_marca._id",
+                marca_nome: "$info_marca.nome_marca",
+            },
+            proprietario: {
+                proprietario_id: "$info_marca._id",
+                nome_proprietario: "$info_prop.nome",
+                sexo_proprietario: "$info_prop.sexo",
+                cpf_proprietario: "$info_prop.cpf",
+                endereco: {
+                    rua: "$info_prop.endereco",
+                    numero: "$info_prop.numero",
+                    bairro: "$info_prop.bairro",
+                    cidade: "$info_prop.cidade_estado.nome_cidade",
+                    estado: "$info_prop.cidade_estado.nome_estado"
+                }
             }
            
         }
     },
+    {$out: "veiculos_certo"}
 ])
+
+
+// Script para adicionar o id da cidade na coleção de proprietarios
+const cidades = db.cidades_certo.find({}, { _id: 1 }).toArray();
+const idsCidades= cidades.map(p => p._id);
+
+// 2. Itera sobre os proprietarios e atualiza cada um
+db.proprietarios.find().forEach(proprietario => {
+    // Escolhe um índice aleatório do array de proprietários
+    const randomIndex = Math.floor(Math.random() * idsProprietarios.length);
+    const randomCidadeId = idsCidades[randomIndex];
+
+    // Atualiza o documento adicionando o campo cidade_id
+    db.proprietarios.updateOne(
+        { _id: proprietario._id },
+        { $set: { cidades_id: randomCidadeId } }
+    );
+});
+
+// Tranformar a cidade em objeto
+db.proprietarios.find({ cidades_id: { $exists: true } }).forEach(prop => {
+    // Busca a cidade correspondente
+    const cidade = db.cidades_certo.findOne({ _id: prop.cidades_id });
+
+    if (cidade) {
+        db.proprietarios.updateOne(
+            { _id: prop._id },
+            { 
+                $set: { 
+                    cidade_detalhada: cidade // Adiciona o objeto novo
+                },
+                $unset: { cidades_id: "" } // Remove o ID antigo (opcional)
+
+            }
+        );
+    }
+});
