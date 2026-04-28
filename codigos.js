@@ -140,8 +140,8 @@ db.veiculos.aggregate([
     {
         $lookup: {
             from: "marcas",
-            localField: "marca",       // Campo na coleção veiculos
-            foreignField: "nome_marca", // Campo na coleção marcas
+            localField: "marca",       
+            foreignField: "nome_marca", 
             as: "info_marca"
         }
     },
@@ -233,3 +233,210 @@ db.proprietarios.find({ cidades_id: { $exists: true } }).forEach(prop => {
         );
     }
 });
+
+
+db.multas.insertOne({
+    lancamento: ISODate("2026-04-28T10:15:00Z"),
+    local: {
+        rua: "Av. Major Prado",
+        numero: 123,
+        cidade: "Bujari",
+        estado: "AC"
+    },
+    id_agente: ObjectId('69e127d8fdfb71e1e6c01a75'),
+    infracoes: [
+        {
+            artigo: "169",
+            descricao: "Dirigir sem atenção ou sem os cuidados indispensáveis à segurança.",
+            grau: "Leve",
+            pontos: 3,
+            valor: 88.38
+        },
+        {
+            artigo: "184",
+            descricao: "Transitar com o veículo na faixa ou pista da direita, regulamentada co…",
+            gravidade: "Média",
+            pontos: 4,
+            valor: 130.16   
+        }
+    ],
+    id_veiculo: ObjectId('69e1222ae26890e4f925cc86')
+})
+
+db.multas.aggregate([
+    {
+        $lookup: {
+            from: "agentes",
+            localField: "id_agente",
+            foreignField: "_id",
+            as: "agentes_info"
+        }
+    }
+])
+
+db.multas.insertMany([
+    {
+        lancamento: ISODate("2026-04-28T10:15:00Z"),
+        local: {
+            rua: "Av. Major Prado",
+            numero: 123,
+            cidade: "Bujari",
+            estado: "AC"
+        },
+        id_agente: ObjectId('69e127d8fdfb71e1e6c01a75'),
+        infracoes: [
+            {
+                artigo: "169",
+                descricao: "Dirigir sem atenção ou sem os cuidados indispensáveis à segurança.",
+                grau: "Leve",
+                pontos: 3,
+                valor: 88.38
+            },
+            {   
+                artigo: "182 VI",
+                descricao: "Parar o veículo no passeio ou sobre faixa destinada a pedestres, nas i…",
+                grau: "Média",
+                pontos: 4,
+                valor: 130.16
+            }
+        ],
+        id_veiculo: ObjectId('69e1222ae26890e4f925cc87')
+    },
+    {
+        lancamento: ISODate("2026-04-28T10:15:00Z"),
+        local: {
+            rua: "Av. Major Prado",
+            numero: 123,
+            cidade: "Bujari",
+            estado: "AC"
+        },
+        id_agente: ObjectId('69e127d8fdfb71e1e6c01a75'),
+        infracoes: [
+            {
+                artigo: "172",
+                descricao: "Atirar do veículo ou abandonar na via objetos ou substâncias.",
+                grau: "Média",
+                pontos: 4,
+                valor: 130.16
+            },
+            {   
+                artigo: "205",
+                descricao: "Ultrapassar veículo em movimento que integre cortejo, préstito, desfil…",
+                grau: "Leve",
+                pontos: 3,
+                valor: 88.38
+            }
+        ],
+        id_veiculo: ObjectId('69ee2906fdfb71e1e6c01a7c')
+    },
+    {
+        lancamento: ISODate("2026-04-28T10:15:00Z"),
+        local: {
+            rua: "Av. joao neves",
+            numero: 123,
+            cidade: "Porto Acre",
+            estado: "AC"
+        },
+        id_agente: ObjectId('69e127d8fdfb71e1e6c01a76'),
+        infracoes: [
+            {
+                artigo: "172",
+                descricao: "Atirar do veículo ou abandonar na via objetos ou substâncias.",
+                grau: "Média",
+                pontos: 4,
+                valor: 130.16
+            },
+            {   
+                artigo: "205",
+                descricao: "Ultrapassar veículo em movimento que integre cortejo, préstito, desfil…",
+                grau: "Leve",
+                pontos: 3,
+                valor: 88.38
+            }
+        ],
+        id_veiculo: ObjectId('69e1222ae26890e4f925cc97')
+    },
+    {
+        lancamento: ISODate("2026-04-28T10:15:00Z"),
+        local: {
+            rua: "Av. joao neves",
+            numero: 123,
+            cidade: "Porto Acre",
+            estado: "AC"
+        },
+        id_agente: ObjectId('69e127d8fdfb71e1e6c01a76'),
+        infracoes: [
+            {
+                artigo: "172",
+                descricao: "Atirar do veículo ou abandonar na via objetos ou substâncias.",
+                grau: "Média",
+                pontos: 4,
+                valor: 130.16
+            },
+            {   
+                artigo: "205",
+                descricao: "Ultrapassar veículo em movimento que integre cortejo, préstito, desfil…",
+                grau: "Leve",
+                pontos: 3,
+                valor: 88.38
+            }
+        ],
+        id_veiculo: ObjectId('69e1222ae26890e4f925cc89')
+    },
+    {
+        lancamento: ISODate("2026-04-28T10:15:00Z"),
+        local: {
+            rua: "Av. joao neves",
+            numero: 123,
+            cidade: "Porto Acre",
+            estado: "AC"
+        },
+        id_agente: ObjectId('69e127d8fdfb71e1e6c01a79'),
+        infracoes: [
+            {
+                artigo: "172",
+                descricao: "Atirar do veículo ou abandonar na via objetos ou substâncias.",
+                grau: "Média",
+                pontos: 4,
+                valor: 130.16
+            },
+            {   
+                artigo: "205",
+                descricao: "Ultrapassar veículo em movimento que integre cortejo, préstito, desfil…",
+                grau: "Leve",
+                pontos: 3,
+                valor: 88.38
+            }
+        ],
+        id_veiculo: ObjectId('69e1222ae26890e4f925cc89')
+    },
+])
+db.multas.insertOne(
+    {
+        lancamento: ISODate("2026-04-28T10:15:00Z"),
+        local: {
+            rua: "Av. joao neves",
+            numero: 123,
+            cidade: "Porto Acre",
+            estado: "AC"
+        },
+        id_agente: ObjectId('69e127d8fdfb71e1e6c01a79'),
+        infracoes: [
+            {
+                artigo: "172",
+                descricao: "Atirar do veículo ou abandonar na via objetos ou substâncias.",
+                grau: "Média",
+                pontos: 4,
+                valor: 130.16
+            },
+            {   
+                artigo: "205",
+                descricao: "Ultrapassar veículo em movimento que integre cortejo, préstito, desfil…",
+                grau: "Leve",
+                pontos: 3,
+                valor: 88.38
+            }
+        ],
+        id_veiculo: ObjectId('69e1222ae26890e4f925cc89')
+    },
+)
