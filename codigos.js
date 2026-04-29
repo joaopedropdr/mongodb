@@ -440,3 +440,33 @@ db.multas.insertOne(
         id_veiculo: ObjectId('69e1222ae26890e4f925cc89')
     },
 )
+db.multas.insertOne(
+    {
+        lancamento: ISODate("2026-04-28T10:15:00Z"),
+        local: {
+            rua: "Av. joao neves",
+            numero: 123,
+            cidade: "Sena Madureira",
+            estado: "AC"
+        },
+        id_agente: ObjectId('69e127d8fdfb71e1e6c01a76'),
+        infracoes: [
+            {
+                artigo: "254 I",
+                descricao: "É proibido ao pedestre permanecer ou andar nas pistas de rolamento, ex…",
+                grau: "Leve",
+                pontos: 0,
+                valor: 44.19,
+            },
+            {   
+
+                artigo: "171",
+                descricao: "Usar o veículo para arremessar, sobre os pedestres ou veículos, água o…",
+                grau: "Média",
+                pontos: 4,
+                valor: 130.16,
+            }
+        ],
+        id_veiculo: ObjectId('69e1222ae26890e4f925cc8a')
+    },
+)

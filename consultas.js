@@ -159,3 +159,106 @@ db.multas.aggregate([
         $sort: {totalMultasAno: -1}
     }
 ]) 
+
+// Qual marca de carro os homens preferem. Execução: 1m/s, 1, 1, 1, 1. Média 1m/s
+db.multas.aggregate([
+    {
+        $lookup: {
+            from: "veiculos_certo",
+            localField: "id_veiculo",
+            foreignField: "_id",
+            as: "veiculo_info"
+        }
+    },
+    { $unwind: "$veiculo_info" },
+
+    {
+        $group: {
+            _id: "$veiculo_info.marca.marca_nome",
+            totalHomensMarca: {
+                $sum: {
+                    $cond: [ { $eq: ["$veiculo_info.proprietario.sexo_proprietario", "Masculino"] }, 1, 0 ] // ele verifica se o sexo é igual a masculino e adiciona o numero 1, se não for ele adiciona o 0.
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            marca: "$_id",
+            totalHomensMarca: 1,
+
+        }
+    },
+    {
+        $sort: {totalHomensMarca: -1}
+    },
+    {$limit: 1}
+
+]).explain("executionStats")
+
+// Consulta usando $match. 4m/s, 1, 1, 2, 1. +-4
+// $match teve pior desemprenho.
+db.multas.aggregate([
+    {
+        $lookup: {
+            from: "veiculos_certo",
+            localField: "id_veiculo",
+            foreignField: "_id",
+            as: "veiculo_info"
+        }
+    },
+    { $unwind: "$veiculo_info" },
+    
+    // Filtramos apenas os registros onde o sexo é masculino
+    { 
+        $match: { "veiculo_info.proprietario.sexo_proprietario": "Masculino" } 
+    },
+    
+    // Agora o group só precisa contar as ocorrências (não precisa mais do $cond)
+    {
+        $group: {
+            _id: "$veiculo_info.marca.marca_nome",
+            totalHomensMarca: { $sum: 1 }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            marca: "$_id",
+            totalHomensMarca: 1
+        }
+    },
+    { $sort: { totalHomensMarca: -1 } },
+    {$limit: 1}
+]).explain("executionStats")
+
+// Ranking de veiculos mais multados
+db.multas.aggregate([
+    {
+        $lookup: {
+            from: "veiculos_certo",
+            localField: "id_veiculo",
+            foreignField: "_id",
+            as: "veiculo_info"
+        }
+      
+    },
+    { $unwind: "$veiculo_info" }, 
+    {
+        $group: {
+            _id: "$veiculo_info.modelo",
+            totalVeiculos: { $sum: 1 }
+        }
+    }, 
+    { 
+        $project: {
+            _id: 0,
+            modelo: "$_id",
+            totalVeiculos: 1
+        }
+    },
+    {$sort: {totalVeiculos: -1}}
+
+
+])
